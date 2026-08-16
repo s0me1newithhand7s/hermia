@@ -1,0 +1,29 @@
+jobs:
+  fmt:
+    continue-on-error: false
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v6
+      - name: nix install
+        uses: DeterminateSystems/nix-installer-action@v21
+      - name: flake.lock check
+        uses: DeterminateSystems/flake-checker-action@v12
+        with:
+          fail-mode: true
+      - name: formatter run
+        run: |
+          mkdir -p "./.devenv"
+          
+          printf "%s" "$PWD" > "./.devenv/root"
+          
+          nix develop .#default \
+            --no-pure-eval \
+            --override-input devenv-root "file+file://$(pwd)/.devenv/root" \
+            --command devenv test 
+
+name: flake_format
+"on":
+  push: {}
+  workflow_dispatch: {}
