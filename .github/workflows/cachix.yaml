@@ -30,7 +30,7 @@ jobs:
         shell: bash
         run: |
           nix --extra-experimental-features "nix-command flakes" \
-            eval .#default.drvPath --no-pure-eval \
+            eval --no-pure-eval \
             --accept-flake-config .#linuxPackages-hermia-latest-v3-lto \
             .#linuxPackages-hermia-hardened-v3-lto \
             .#linuxPackages-hermia-server-v3-lto \
@@ -42,7 +42,7 @@ jobs:
         shell: bash
         run: |
           nix --extra-experimental-features "nix-command flakes" \
-            build .#default --no-pure-eval \
+            build --no-pure-eval \
             --accept-flake-config .#linuxPackages-hermia-latest-v3-lto \
             .#linuxPackages-hermia-hardened-v3-lto \
             .#linuxPackages-hermia-server-v3-lto \
