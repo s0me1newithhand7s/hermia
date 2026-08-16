@@ -4,6 +4,8 @@ name: cachix push job
 on:
   workflow_dispatch:
 
+  push:
+
 jobs:
   push-to-cache:
     name: update-binary-cache
