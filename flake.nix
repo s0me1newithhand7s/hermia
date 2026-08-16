@@ -162,13 +162,13 @@
         };
       in {
         packages = {
-          linuxPackages-hermia-latest-v3-lto = flavors.linuxPackages-hermia-latest-v3-lto.kernel;
-          linuxPackages-hermia-hardened-v3-lto = flavors.linuxPackages-hermia-hardened-v3-lto.kernel;
-          linuxPackages-hermia-server-v3-lto = flavors.linuxPackages-hermia-server-v3-lto.kernel;
+          linuxPackages-hermia-latest-v3-lto = pkgs.linuxPackagesFor flavors.linuxPackages-hermia-latest-v3-lto.kernel;
+          linuxPackages-hermia-hardened-v3-lto = pkgs.linuxPackagesFor flavors.linuxPackages-hermia-hardened-v3-lto.kernel;
+          linuxPackages-hermia-server-v3-lto = pkgs.linuxPackagesFor flavors.linuxPackages-hermia-server-v3-lto.kernel;
 
-          linuxPackages-hermia-latest-znver3-lto = flavors.linuxPackages-hermia-latest-znver3-lto.kernel;
-          linuxPackages-hermia-hardened-znver3-lto = flavors.linuxPackages-hermia-hardened-znver3-lto.kernel;
-          linuxPackages-hermia-server-znver3-lto = flavors.linuxPackages-hermia-server-znver3-lto.kernel;
+          linuxPackages-hermia-latest-znver3-lto = pkgs.linuxPackagesFor flavors.linuxPackages-hermia-latest-znver3-lto.kernel;
+          linuxPackages-hermia-hardened-znver3-lto = pkgs.linuxPackagesFor flavors.linuxPackages-hermia-hardened-znver3-lto.kernel;
+          linuxPackages-hermia-server-znver3-lto = pkgs.linuxPackagesFor flavors.linuxPackages-hermia-server-znver3-lto.kernel;
         };
 
         # numtide/treefmt-nix, treefmt integrated into nix
