@@ -1,0 +1,15 @@
+# sops / secrets
+.sops.yaml
+secrets/
+*/sops/*
+
+# ignored 
+
+# env shit
+.env/
+.direnv/
+.devenv/
+.vscode/
+.obsidian/
+.trash/
+.zed/
