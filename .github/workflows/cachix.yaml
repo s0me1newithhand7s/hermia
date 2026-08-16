@@ -30,7 +30,7 @@ jobs:
         shell: bash
         run: |
           nix --extra-experimental-features "nix-command flakes" \
-            eval --no-pure-eval \
+            build --no-pure-eval --dry-run \
             --accept-flake-config .#linuxPackages-hermia-latest-v3-lto \
             .#linuxPackages-hermia-hardened-v3-lto \
             .#linuxPackages-hermia-server-v3-lto \
@@ -38,7 +38,7 @@ jobs:
             .#linuxPackages-hermia-hardened-znver3-lto \
             .#linuxPackages-hermia-server-znver3-lto
 
-      - name: nix build
+      - name: dry build
         shell: bash
         run: |
           nix --extra-experimental-features "nix-command flakes" \
@@ -49,5 +49,4 @@ jobs:
             .#linuxPackages-hermia-latest-znver3-lto \
             .#linuxPackages-hermia-hardened-znver3-lto \
             .#linuxPackages-hermia-server-znver3-lto
-
 ...
