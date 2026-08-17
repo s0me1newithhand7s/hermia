@@ -12,6 +12,7 @@ in
     structuredExtraConfig = with lib.kernel; {
       CC_IS_CLANG = yes;
       GCC_VERSION = freeform "0";
+      LTO_CLANG_THIN = yes;
 
       "64BIT" = yes;
       X86_64 = yes;

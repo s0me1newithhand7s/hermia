@@ -145,7 +145,7 @@
         lib,
         ...
       }: let
-        baseKernel = import ./lib/base.nix {
+        flavors = import ./lib/flavors.nix {
           inherit
             inputs
             system
@@ -153,23 +153,9 @@
             lib
             ;
         };
-        flavors = import ./lib/flavors.nix {
-          inherit
-            baseKernel
-            pkgs
-            lib
-            ;
-        };
       in {
-        packages = {
-          linuxPackages-hermia-latest-v3-lto = pkgs.linuxPackagesFor flavors.linuxPackages-hermia-latest-v3-lto.kernel;
-          linuxPackages-hermia-hardened-v3-lto = pkgs.linuxPackagesFor flavors.linuxPackages-hermia-hardened-v3-lto.kernel;
-          linuxPackages-hermia-server-v3-lto = pkgs.linuxPackagesFor flavors.linuxPackages-hermia-server-v3-lto.kernel;
-
-          linuxPackages-hermia-latest-znver3-lto = pkgs.linuxPackagesFor flavors.linuxPackages-hermia-latest-znver3-lto.kernel;
-          linuxPackages-hermia-hardened-znver3-lto = pkgs.linuxPackagesFor flavors.linuxPackages-hermia-hardened-znver3-lto.kernel;
-          linuxPackages-hermia-server-znver3-lto = pkgs.linuxPackagesFor flavors.linuxPackages-hermia-server-znver3-lto.kernel;
-        };
+        packages = flavors.kernels;
+        legacyPackages = flavors.linuxPackages;
 
         # numtide/treefmt-nix, treefmt integrated into nix
         treefmt = {
@@ -277,6 +263,14 @@
             };
           };
         };
+      };
+
+      flake = {
+        overlays.default = final: _prev:
+          (import ./lib/flavors.nix {
+            inherit inputs;
+            inherit (final) system pkgs lib;
+          }).linuxPackages;
       };
     };
 }

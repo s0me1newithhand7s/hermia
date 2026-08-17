@@ -1,17 +1,41 @@
 {
-  baseKernel,
+  inputs,
+  system,
   pkgs,
   lib,
 }: let
+  baseKernel = import ./base.nix {
+    inherit
+      inputs
+      system
+      pkgs
+      lib
+      ;
+  };
+
   llvm = pkgs.llvmPackages_latest;
 
-  extendKernel = base: nameSuffix: {
+  extendKernel = base: type: {
     extraConfig,
     extraMakeFlags ? [],
   }: let
+    version = "${base.version}-${type}";
+    modDirVersion = "${lib.versions.pad 3 base.version}-${type}";
+
     overridden = base.override (
       old: {
         inherit (llvm) stdenv;
+        argsOverride =
+          (
+            old.argsOverride or {}
+          )
+          // {
+            pname = "linux-hermia";
+            inherit
+              version
+              modDirVersion
+              ;
+          };
 
         structuredExtraConfig =
           (
@@ -23,8 +47,6 @@
   in
     overridden.overrideAttrs (
       old: {
-        pname = "linux-hermia-${nameSuffix}";
-
         nativeBuildInputs =
           (
             old.nativeBuildInputs or []
@@ -38,7 +60,8 @@
           (
             old.makeFlags or []
           )
-          ++ extraMakeFlags;
+          ++ extraMakeFlags
+          ++ ["LOCALVERSION=-${type}"];
       }
     );
 
@@ -47,6 +70,7 @@
       march = "x86-64-v3";
       makeFlags = ["V=1"];
     };
+
     znver3 = {
       march = "znver3";
       mtune = "znver3";
@@ -56,25 +80,27 @@
   llvmFlags = arch: let
     kcflags =
       [
+        "-g0"
         "-O3"
-        "-mllvm -inline-threshold=600"
-        "-mllvm -inlinehint-threshold=1000"
-        "-mllvm -unroll-threshold=300"
+        "-mllvm -inline-threshold=365"
+        "-mllvm -inlinehint-threshold=450"
+        "-mllvm -unroll-threshold=150"
         "-mllvm -align-all-functions=6"
         "-mllvm -align-all-blocks=5"
+        "-mllvm -hot-cold-split"
         "-march=${arch.march}"
       ]
       ++ lib.optional (arch ? mtune) "-mtune=${arch.mtune}";
   in [
-    "HOSTCC=${pkgs.clang}/bin/clang"
+    "HOSTCC=${lib.getExe' pkgs.clang "clang"}"
     "KCFLAGS=${lib.concatStringsSep " " kcflags}"
     "HOSTCFLAGS=-O3 -march=native"
+    "LDFLAGS=-Wl,--threads=1,--lto-partitions=1,--strip-all"
   ];
 
   flavorsConfig = {
     latest = with lib.kernel; {
       CC_OPTIMIZE_FOR_PERFORMANCE = yes;
-      LTO_CLANG_THIN = option yes;
       DRM = yes;
       DRM_AMDGPU = yes;
       DRM_AMD_DC = yes;
@@ -92,7 +118,6 @@
 
     hardened = with lib.kernel; {
       CC_OPTIMIZE_FOR_PERFORMANCE = yes;
-      LTO_CLANG_THIN = option yes;
       DRM = yes;
       DRM_AMDGPU = yes;
       SCHED_CLASS_EXT = yes;
@@ -103,13 +128,38 @@
       SLAB_MERGE_DEFAULT = no;
       SECURITY_LANDLOCK = yes;
       SECURITY_YAMA = yes;
+      PAGE_POISONING = yes;
+      PAGE_POISONING_ZERO = yes;
+      SECURITY_DMESG_RESTRICT = yes;
+      STRICT_KERNEL_RWX = yes;
+      STRICT_MODULE_RWX = yes;
+      RANDOMIZE_BASE = yes;
+      RANDOMIZE_MEMORY = yes;
+      SLUB_DEBUG = yes;
+      SLUB_DEBUG_ON = yes;
+      PAGE_TABLE_ISOLATION = yes;
+      RETPOLINE = yes;
+      DEVMEM = no;
+      X86_IOPL_IOPERM = no;
+      ACPI_CUSTOM_METHOD = no;
+      COMPAT = no;
     };
 
     server = with lib.kernel; {
-      LTO_CLANG_THIN = yes;
       PREEMPT_LAZY = lib.mkForce yes;
       PREEMPT = lib.mkForce no;
-      HZ_100 = yes;
+      SCHED_CLASS_EXT = yes;
+      HZ_300 = yes;
+      SECURITY_LANDLOCK = yes;
+      SECURITY_YAMA = yes;
+      STRICT_KERNEL_RWX = yes;
+      STRICT_MODULE_RWX = yes;
+      PAGE_TABLE_ISOLATION = yes;
+      RETPOLINE = yes;
+      BPF = yes;
+      BPF_SYSCALL = yes;
+      BPF_JIT = yes;
+      BPF_JIT_ALWAYS_ON = lib.mkForce yes;
     };
   };
 
@@ -118,8 +168,8 @@
       extraMakeFlags = (archs.${archName}.makeFlags or []) ++ llvmFlags archs.${archName};
       extraConfig = flavorsConfig.${flavorName};
     };
-in
-  lib.listToAttrs (
+
+  kernels = lib.listToAttrs (
     lib.concatMap
     (
       flavor:
@@ -127,10 +177,17 @@ in
         (
           arch: {
             name = "linuxPackages-hermia-${flavor}-${arch}-lto";
-            value = pkgs.linuxPackagesFor (makeKernel arch flavor);
+            value = makeKernel arch flavor;
           }
         )
         (lib.attrNames archs)
     )
     (lib.attrNames flavorsConfig)
-  )
+  );
+in {
+  inherit
+    kernels
+    ;
+
+  linuxPackages = lib.mapAttrs (_: kernel: pkgs.linuxPackagesFor kernel) kernels;
+}
