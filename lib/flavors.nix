@@ -129,7 +129,6 @@
       SECURITY_LANDLOCK = yes;
       SECURITY_YAMA = yes;
       PAGE_POISONING = yes;
-      PAGE_POISONING_ZERO = yes;
       SECURITY_DMESG_RESTRICT = yes;
       STRICT_KERNEL_RWX = yes;
       STRICT_MODULE_RWX = yes;
@@ -139,13 +138,16 @@
       SLUB_DEBUG_ON = yes;
       PAGE_TABLE_ISOLATION = yes;
       RETPOLINE = yes;
-      DEVMEM = no;
       X86_IOPL_IOPERM = no;
-      ACPI_CUSTOM_METHOD = no;
-      COMPAT = no;
+      STRICT_DEVMEM = yes;
+      COMPAT = lib.mkForce no;
+      CPU_SUP_AMD = yes;
+      CPU_SUP_INTEL = yes;
+      X86_MPPARSE = yes;
     };
 
     server = with lib.kernel; {
+      CC_OPTIMIZE_FOR_PERFORMANCE = yes;
       PREEMPT_LAZY = lib.mkForce yes;
       PREEMPT = lib.mkForce no;
       SCHED_CLASS_EXT = yes;
@@ -160,6 +162,9 @@
       BPF_SYSCALL = yes;
       BPF_JIT = yes;
       BPF_JIT_ALWAYS_ON = lib.mkForce yes;
+      CPU_SUP_AMD = yes;
+      CPU_SUP_INTEL = yes;
+      X86_MPPARSE = yes;
     };
   };
 
