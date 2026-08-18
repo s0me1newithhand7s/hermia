@@ -138,7 +138,6 @@
       SLUB_DEBUG_ON = yes;
       X86_IOPL_IOPERM = no;
       STRICT_DEVMEM = yes;
-      COMPAT = lib.mkForce no;
       CPU_SUP_AMD = yes;
       CPU_SUP_INTEL = yes;
       X86_MPPARSE = yes;
