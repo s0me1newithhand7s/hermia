@@ -155,8 +155,6 @@
       SECURITY_YAMA = yes;
       STRICT_KERNEL_RWX = yes;
       STRICT_MODULE_RWX = yes;
-      PAGE_TABLE_ISOLATION = yes;
-      RETPOLINE = yes;
       BPF = yes;
       BPF_SYSCALL = yes;
       BPF_JIT = yes;
