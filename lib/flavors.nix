@@ -136,14 +136,13 @@
       RANDOMIZE_MEMORY = yes;
       SLUB_DEBUG = yes;
       SLUB_DEBUG_ON = yes;
-      PAGE_TABLE_ISOLATION = yes;
-      RETPOLINE = yes;
       X86_IOPL_IOPERM = no;
       STRICT_DEVMEM = yes;
       COMPAT = lib.mkForce no;
       CPU_SUP_AMD = yes;
       CPU_SUP_INTEL = yes;
       X86_MPPARSE = yes;
+      IA32_EMULATION = lib.mkForce no;
     };
 
     server = with lib.kernel; {
