@@ -80,7 +80,6 @@
   llvmFlags = arch: let
     kcflags =
       [
-        "-g0"
         "-O3"
         "-mllvm -inline-threshold=365"
         "-mllvm -inlinehint-threshold=450"
@@ -88,6 +87,7 @@
         "-mllvm -align-all-functions=6"
         "-mllvm -align-all-blocks=5"
         "-mllvm -hot-cold-split"
+        "-mllvm -enable-dfa-jump-thread"
         "-march=${arch.march}"
       ]
       ++ lib.optional (arch ? mtune) "-mtune=${arch.mtune}";
@@ -95,7 +95,7 @@
     "HOSTCC=${lib.getExe' pkgs.clang "clang"}"
     "KCFLAGS=${lib.concatStringsSep " " kcflags}"
     "HOSTCFLAGS=-O3 -march=native"
-    "LDFLAGS=-Wl,--threads=1,--lto-partitions=1,--strip-all"
+    "LDFLAGS=-Wl,--threads=2,--icf=all,--lto-partitions=1,--strip-all,--allow-shlib-undefined"
   ];
 
   flavorsConfig = {
